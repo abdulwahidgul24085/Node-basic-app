@@ -1,0 +1,82 @@
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="col col-lg-5" style="margin:1%;">
+            <h1 class="text-center">Wallets</h1>
+            <form action="/wallets" method="POST" class="form-horizontal" role="form">
+                <!-- <legend class='text-center'>Create Wallet</legend> -->
+                <button type="submit" name="create_wallet" value="true" id="create_wallet" class="btn btn-warning btn-lg btn-block">Create
+                    Stellar
+                    Wallet</button>
+            </form>
+        </div>
+        {{# if wallet}}
+        <div class="col col-lg-8" style="margin:1%;">
+            {{#if error}}
+            <div class="card border-danger">
+                <div class="card-body">
+                    <h4 class="card-title text-center">
+                        {{balance.title}}
+                    </h4>
+                    <p class="card-text text-center">
+                        {{balance.detail}}
+                    </p>
+                    <p class="card-text text-center">
+                        {{{toJSON balance.extras}}}
+                    </p>
+                </div>
+                {{else}}
+                <div class="card border-success">
+                    <div class="card-body">
+                        <h4 class="card-title text-center">Wallet Info:</h4>
+                        <p class="card-text text-center"><strong>Public Key:</strong>
+                            {{publicKey }}
+                        </p>
+                        <p class="card-text text-center"><strong>Secret:</strong>
+                            {{secret}}
+                        </p>
+                        <a id="downloadAnchorElem" style="display:none"></a>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title text-center">Balance Details</h4>
+                        <div class="card-text json">
+                            {{#each amount.balances}}
+                            <code id="balance">{{toJSON this}}</code>
+
+                            {{/each}}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title text-center">
+                            Transaction Details
+                        </h4>
+                        <div class="card-text json">
+                            <code id="txn">{{toJSON tx_xdr}}</code>
+                        </div>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+            <script>
+                var wallet = {
+                    "publicKey": "{{publicKey}}",
+                    "secret": "{{secret}}"
+                };
+
+                localStorage.setItem('wallet', JSON.stringify(wallet));
+                var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(wallet));
+                var dlAnchorElem = document.getElementById('downloadAnchorElem');
+                dlAnchorElem.setAttribute("href", dataStr);
+                dlAnchorElem.setAttribute("download", "wallet.json");
+                dlAnchorElem.click();
+
+                var balance = JSON.parse(document.getElementById('balance').innerText);
+                var txn = JSON.parse(document.getElementById('txn').innerText);
+
+                $(function () {
+                    $('#balance').JSONView(balance);
+                    $('#txn').JSONView(txn);
+                });
+            </script>
+            {{/if}}
+        </div>
+    </div>

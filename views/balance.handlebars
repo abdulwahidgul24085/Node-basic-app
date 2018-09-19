@@ -1,0 +1,34 @@
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="col col-lg-7" style="margin:1%;">
+            <h1 class="text-center">Balance</h1>
+            <form action="/balance" method="GET">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="wallet" name="wallet" placeholder="">
+                </div>
+                <button type="submit" class="btn btn-warning btn-block">Check Balance</button>
+            </form>
+
+            {{#if amount}}
+                <div class="card-text json">
+                <code id="json">{{toJSON amount}}</code>
+                </div>
+            {{/if}}
+        </div>
+        </div>
+    </div>
+
+    <script>
+        if(localStorage.getItem('wallet')){
+            document.getElementById('wallet').value = JSON.parse(localStorage.getItem('wallet')).publicKey
+        }
+        else{
+            document.getElementById('wallet').setAttribute('placeholder','Wallet Public Address');
+        }
+
+        var json = JSON.parse(document.getElementById('json').innerText);
+
+        $(function() {
+            $('#json').JSONView(json);
+        });
+    </script>
