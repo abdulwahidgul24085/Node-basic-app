@@ -47,10 +47,21 @@
         <li class="nav-item">
           <a class="nav-link" href="/transfer">Transfer</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/assets">Create Assets</a>
+        </li>
       </ul>
     </div>
   </nav>
   {{{body}}}
+
+  <script>
+     $(function () {
+        $('#json').JSONView(json,{
+          collapsed: true
+        });
+      });
+  </script>
 </body>
 
 </html>

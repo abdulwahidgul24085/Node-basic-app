@@ -46,7 +46,7 @@ app.post('/wallets', async function (req, res) {
         json: true
     }, async function (error, response, body) {
         if (error || response.statusCode !== 200) {
-            // console.error('ERROR!', error || body);
+            
             res.render('create_wallet', {
                 publicKey: wallet.publicKey(),
                 secret: wallet.secret(),
@@ -57,7 +57,6 @@ app.post('/wallets', async function (req, res) {
             });
         } else {
             let amount = await getBalance('GACPFYOYFARJAZ3QRAYBTZYTNWNSCVDVBFG7DHVJDBR7OQJZWPLLKEQY');
-            console.log(body);
 
             res.render('create_wallet', {
                 publicKey: wallet.publicKey(),
@@ -91,8 +90,6 @@ app.get('/balance', async function (req, res) {
     var amount = {};
     if (req.query.wallet) {
         amount = await getBalance(req.query.wallet);
-        console.log(amount);
-
     }
     res.render('balance', {
         title: 'Balance',
@@ -107,87 +104,53 @@ app.get('/transfer', function (req, res) {
 });
 
 app.post('/transfer', async function (req, res) {
-    // {
-    //     sourcePublicKey: 'GB3EE4ED3EK732ZZEFMAPWFE4H3KBPUXFHXYXE6ZA3VLAEIOCC4BMSZW',
-    //     sourceSecret: 'GB3EE4ED3EK732ZZEFMAPWFE4H3KBPUXFHXYXE6ZA3VLAEIOCC4BMSZW',
-    //     destinationPublicKey: 'GB3EE4ED3EK732ZZEFMAPWFE4H3KBPUXFHXYXE6ZA3VLAEIOCC4BMSZWGB3EE4ED3EK732ZZEFMAPWFE4H3KBPUXFHXYXE6ZA3VLAEIOCC4BMSZW',
-    //     amount: '15'
-    // }
-    // horizon.loadAccount(req.body.sourcePublicKey).then(function(sourcePublicKey){
-    //     var transaction = new stellarSdk.TransactionBuilder(sourcePublicKey)
-    //         .addOperation(stellarSdk.Operation.payment({
-    //             destination: req.body.destinationPublicKey,
-    //             asset: stellarSdk.Asset.native(),
-    //             amount: `${req.body.amount}`
-    //         }))
-    //         .build();
+    let result = null;
+    let error = null;
 
-    //     transaction.sign(req.body.sourceSecret);
-    //     return horizon.submitTransaction(transaction);
-    // })
-    // .then(function(transactionResult){
-    //     console.log(transactionResult);
-    // })
-    // .catch(function(err) {
-    //     console.error(err);
+    await horizon.loadAccount(req.body.destinationPublicKey).catch(stellarSdk.NotFoundError, (err) => {
+            error = 'The destination account does not exist';
+        })
+        .then(() => {
+            return horizon.loadAccount(req.body.sourcePublicKey);
+        })
+        .then((sourceAccount) => {
 
-    // })
-    console.log(req.body);
-    
-    var result = await horizon.loadAccount(req.body.sourcePublicKey).then(function(sourceAccount) {
-        var transaction = new stellarSdk.TransactionBuilder(sourceAccount)
-            .addOperation(stellarSdk.Operation.payment({
-                destination: req.body.destinationPublicKey,
-                asset: stellarSdk.Asset.native(),
-                amount: req.body.amount
-            }))
-            .build();
+            transaction = new stellarSdk.TransactionBuilder(sourceAccount)
+                .addOperation(stellarSdk.Operation.payment({
+                    destination: req.body.destinationPublicKey,
+                    asset: stellarSdk.Asset.native(),
+                    amount: req.body.amount
+                }))
+                .build();
 
-        transaction.sign(req.body.sourceSecret);
-        return horizon.submitTransaction(transaction);
-    }).catch(error=>error);
-    console.log(result);
-    
+            transaction.sign(stellarSdk.Keypair.fromSecret(req.body.sourceSecret));
+
+            return horizon.submitTransaction(transaction);
+        })
+        .then((res) => {
+            result = res;            
+        })
+        .catch((err) => {            
+            error = err;
+        })
 
     res.render('transfer', {
-        title: 'Transfer'
-        // error: error
+        title: 'Transfer',
+        error: error,
+        result: result
+        
     })
 });
 
-async function accountCheck(wallet) {
-    return await horizon.loadAccount(wallet).catch(error => error);
-}
+app.get('/assets', function(req, res) {
+    res.render('assets', {
+        title: 'Create Assets'
+    })
+})
+
 async function getBalance(wallet) {
     return await horizon.loadAccount(wallet);
 }
-
-// app.post('/', function (req, res) {
-//     let city = req.body.city_name;
-//     let apiKey = '20bca7e4aa841592bfffabc74e0d08bf';
-//     let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-
-//     request(url, function(err, response, body) {
-//         if (err) {
-//             res.render('index', {
-//                 weather: null,
-//                 error: 'Error, please try again'
-//             });
-//         } else {
-//             let weather = JSON.parse(body);
-//             if (weather.main == undefined) {
-//                 res.render('index', {
-//                     weather: null,
-//                     error: 'Invalid input, please try again'
-//                 });
-//             } else {
-//                 let weatherText = `It's ${weather.main.temp}˚ Degrees in ${weather.name}`;
-
-//                 res.render('index', {weather: weatherText, error: null});
-//             }
-//         }
-//     });    
-// });
 
 app.listen(3000, function () {
     console.log('Example app listening on port 3000');

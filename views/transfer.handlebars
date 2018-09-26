@@ -4,24 +4,38 @@
             <h1 class="text-center">Transfer</h1>
             <form action="/transfer" method="POST">
                 <div class="form-group">
-                    <input type="text" class="form-control" id="sourcePublicKey" required name="sourcePublicKey" placeholder="Sender Public Key">
+                    <input type="text" class="form-control" id="sourcePublicKey" required name="sourcePublicKey" placeholder="Sender Public Key" >
                 </div>
                 <div class="form-group">
-                    <input type="text" class="form-control" id="sourceSecret" required name="sourceSecret" placeholder="Sender Secret">
+                    <input type="text" class="form-control" id="sourceSecret" required name="sourceSecret" placeholder="Sender Secret" >
                 </div>
                 <div class="form-group">
                     <input type="text" class="form-control" id="destinationPublicKey" required name="destinationPublicKey" placeholder="Receiver Public Key">
                 </div>
                 <div class="form-group">
-                    <input type="number" class="form-control" id="amount" required name="amount" placeholder="Amount XLM">
+                    <input type="number" step="0.0000001" class="form-control" id="amount" required name="amount" placeholder="Amount XLM" >
                 </div>
 
                 <button type="submit" class="btn btn-warning btn-block">Transfer</button>
             </form>
+
+            {{#if error}}
+            <div class="card border-danger" style = 'margin-top:1%;'>
+                <div class="card-body">
+                    <p class="card-text text-center">
+                        {{error.message}}
+                    </p>
+                </div>
+            {{/if}}
+            {{#if result}}
+            <div class="card-text json">
+                <code id="json">{{toJSON result}}</code>
+            </div>
+            {{/if}}
         </div>
         </div>
     </div>
 
     <script>
-       
+       var json = JSON.parse(document.getElementById('json').innerText);
     </script>
