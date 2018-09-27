@@ -20,7 +20,7 @@ horizon.loadAccount(distributor.publicKey())
         console.log(Asset);
               
         var transaction = new stellarSdk.TransactionBuilder(dist)
-            .addOperation(stellarSdk.Operation.changeTrust({
+            .addOperation(stellarSdk.Operation.changeTrust({ 
                 asset: Asset,
                 limit: limit
             }))
