@@ -2,17 +2,48 @@
     <div class="row justify-content-md-center">
         <div class="col col-lg-7" style="margin:1%;">
             <h1 class="text-center">Create Assets</h1>
-            <form action="/transfer" method="POST">
+            <form action="/assets" method="POST">
                 <div class="form-group">
-                    <input type="text" class="form-control" id="sourcePublicKey" required name="sourcePublicKey" placeholder="Sender Public Key" >
+                    <input type="text" class="form-control" id="issuerPublicKey" required name="issuerPublicKey"
+                        placeholder="Issuer Public Key" value="GAWP56TDB3WD3FWKWWNA4OSJPVRVQQELIJB4RSB6FGZTD3EOTUUPN6A5">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="issuerSecret" required name="issuerSecret" placeholder="Issuer Public Key"
+                        value="SCADDLLPJHHFXWUMQLNBB7WHDJQMFJKOZ2N2JM6H4CK3255PTNL4G7AB">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="receiverPublicKey" required name="receiverPublicKey" placeholder="Issuer Public Key"
+                        value="GD67IEYDI6IPJDFAY5BO62CTBXKMNOC6ZXP5AEHPFNF77QWYUMQ7L2Z7">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="receiverSceret" required name="receiverSceret" placeholder="Issuer Public Key"
+                        value="SBSN5GRJERHJBWJFETRZXQL6HEG2RMOQOJ7M77BFFIGSVJJ24PE5OY2G">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="assetName" min required name="assetName" placeholder="Issuer Public Key"
+                        value="ParsecToken">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control" id="limit" required name="limit" placeholder="New Asset Limit" value="10000000">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control" id="amount" required name="amount" placeholder="New Asset Balance" value="10000000">
                 </div>
                 <button type="submit" class="btn btn-warning btn-block">Transfer</button>
             </form>
 
-        </div>
+            {{#if error}}
+                <div class="card border-danger" style='margin-top:1%;'>
+                    <div class="card-body">
+                        <p class="card-text text-center">
+                            {{error}}
+                        </p>
+                    </div>
+            {{/if}}
         </div>
     </div>
+</div>
 
-    <script>
-       var json = JSON.parse(document.getElementById('json').innerText);
-    </script>
+<script>
+    var json = JSON.parse(document.getElementById('json').innerText);
+</script>

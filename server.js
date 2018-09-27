@@ -146,7 +146,59 @@ app.get('/assets', function(req, res) {
     res.render('assets', {
         title: 'Create Assets'
     })
-})
+});
+
+app.post('/assets', async function(req, res) {
+    var error = null;
+    // console.log(req.body);
+    
+    await horizon.loadAccount(req.body.receiverPublicKey)
+        .then(async function (dist) {
+            var newAsset = new stellarSdk.Asset(req.body.assetName, req.body.issuerPublicKey);
+            var transaction = new stellarSdk.TransactionBuilder(dist)
+                .addOperation(stellarSdk.Operation.changeTrust({
+                    asset: newAsset,
+                    limit: req.body.limit
+                }))
+                .build();
+
+            transaction.sign(stellarSdk.Keypair.fromSecret(req.body.receiverSceret));
+            return horizon.submitTransaction(transaction);
+        })
+        .then(function () {
+            return horizon.loadAccount(req.body.issuerPublicKey);
+        })
+        .then(function (issue) {
+            var newAsset = new stellarSdk.Asset(req.body.assetName, req.body.issuerPublicKey);
+            
+            var transaction = new stellarSdk.TransactionBuilder(issue)
+                .addOperation(stellarSdk.Operation.payment({
+                    destination: req.body.receiverPublicKey,
+                    asset: newAsset,
+                    amount: req.body.amount
+                }))
+                .build();
+            
+            transaction.sign(stellarSdk.Keypair.fromSecret(req.body.issuerSecret));
+            // return horizon.submitTransaction(transaction);
+            horizon.submitTransaction(transaction).then(function(result){
+                console.log(result);
+                
+            }).catch(function(err){
+                console.log(err);
+            })
+        })
+        .catch(function (err) {
+            error = err.message;
+            // console.error(err);
+
+        })
+    
+    res.render('assets', {
+        title: 'Create Assets',
+        error: error
+    })
+});
 
 async function getBalance(wallet) {
     return await horizon.loadAccount(wallet);
@@ -155,3 +207,4 @@ async function getBalance(wallet) {
 app.listen(3000, function () {
     console.log('Example app listening on port 3000');
 });
+

@@ -2,7 +2,7 @@
   "name": "poc",
   "version": "1.0.0",
   "description": "testing",
-  "main": "server.js",
+  "main": "console.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "debug": "node --nolazy --inspect-brk=9229 myProgram.js"
