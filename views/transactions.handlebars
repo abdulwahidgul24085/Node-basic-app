@@ -4,7 +4,7 @@
             <h1 class="text-center">Transactions</h1>
             <form action="/transactions" method="GET">
                 <div class="form-group">
-                    <input type="text" class="form-control" id="txn" name="txn" aria-describedby="emailHelp" placeholder="">
+                    <input type="text" class="form-control" id="txn" name="txn" placeholder="Account Public Key">
                 </div>
                 <button type="submit" class="btn btn-warning btn-block">Check Transactions</button>
             </form>
@@ -19,12 +19,12 @@
     </div>
 
     <script>
-        if(localStorage.getItem('wallet')){
+        /*if(localStorage.getItem('wallet')){
             document.getElementById('txn').value = JSON.parse(localStorage.getItem('wallet')).publicKey
         }
         else{
             document.getElementById('txn').setAttribute('placeholder','Wallet Public Address')
-        }
+        }*/
 
         var json = JSON.parse(document.getElementById('json').innerText);
     </script>

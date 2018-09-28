@@ -4,27 +4,58 @@
             <h1 class="text-center">Balance</h1>
             <form action="/balance" method="GET">
                 <div class="form-group">
-                    <input type="text" class="form-control" id="wallet" name="wallet" placeholder="">
+                    <input type="text" class="form-control" id="wallet" name="wallet" placeholder="Account Public Key">
                 </div>
                 <button type="submit" class="btn btn-warning btn-block">Check Balance</button>
             </form>
-
-            {{#if amount}}
-                <div class="card-text json">
-                <code id="json">{{toJSON amount}}</code>
+            {{!-- {1:striped|sm|bordered|hover|inverse} --}}
+        </div>
+        {{#if amount}}
+            <div class="container">
+                <div class="row justify-content-md-center">
+                    <div class="col-md-12 col-lg-12">
+                        <table class="table table-striped  table-inverse table-bordered table-hover">
+                            <thead class="thead-inverse">
+                                <tr>
+                                    <th>Index</th>
+                                    <th>Asset Type</th>
+                                    <th>Asset Code</th>
+                                    <th>Balance</th>
+                                    <th>Limit</th>
+                                    <th>Issuer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each amount}}
+            
+                                <tr>
+                                    <td scope="row">{{@index}}</td>
+                                    <td>{{toJSON this.asset_type}}</td>
+                                    <td>{{toJSON this.asset_code}}</td>
+                                    <td>{{toJSON this.balance}}</td>
+                                    <td>{{toJSON this.limit}}</td>
+                                    <td>{{toJSON this.asset_issuer}}</td>
+                                </tr>
+                                {{!-- {{/if --}}
+                                {{/each}}
+            
+                            </tbody>
+                        </table>
+            
+                    </div>
                 </div>
-            {{/if}}
-        </div>
-        </div>
+            </div>
+        {{/if}}
     </div>
+</div>
 
-    <script>
-        if(localStorage.getItem('wallet')){
+<script>
+    /*if(localStorage.getItem('wallet')){
             document.getElementById('wallet').value = JSON.parse(localStorage.getItem('wallet')).publicKey
         }
         else{
             document.getElementById('wallet').setAttribute('placeholder','Wallet Public Address');
-        }
+        }*/
 
-        var json = JSON.parse(document.getElementById('json').innerText);
-    </script>
+    var json = JSON.parse(document.getElementById('json').innerText);
+</script>
