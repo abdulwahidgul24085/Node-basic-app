@@ -150,116 +150,70 @@ app.get('/assets', function(req, res) {
 
 app.post('/assets', async function(req, res) {
     let error = null;
-    // let distributor = stellarSdk.Keypair.fromSecret(req.body.receiverSceret);
-    // let issuer = stellarSdk.Keypair.fromSecret(req.body.issuerSecret);
-    // let limit = req.body.limit;
-    // let amount = req.body.amount;
-    // let assetName = req.body.assetName;
-    // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey());
-    let distributor = stellarSdk.Keypair.fromSecret('SBSN5GRJERHJBWJFETRZXQL6HEG2RMOQOJ7M77BFFIGSVJJ24PE5OY2G');
-    let issuer = stellarSdk.Keypair.fromSecret('SCADDLLPJHHFXWUMQLNBB7WHDJQMFJKOZ2N2JM6H4CK3255PTNL4G7AB');
-    // let limit = '10000000.0000000';
-    // let amount = '10000000.0000000';
-    // let assetName = 'AWG';
-    let newAssets = new stellarSdk.Asset('AWG', issuer.publicKey());
+    let success = true;
+    let receiver = stellarSdk.Keypair.fromSecret(req.body.receiverSecret);
+    let issuer = stellarSdk.Keypair.fromSecret(req.body.issuerSecret);
+    let limit = req.body.limit;
+    let amount = req.body.amount;
+    let assetName = req.body.assetName;
+    let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey());
     
-    await horizon.loadAccount(issuer.publicKey())
+    await horizon.loadAccount(receiver.publicKey())
+        .then(function (receive) {
+            // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey())
+            
+            let transaction = new stellarSdk.TransactionBuilder(receive)
+                .addOperation(stellarSdk.Operation.changeTrust({
+                    asset: newAssets,
+                    limit: limit
+                })).build();
+
+            transaction.sign(receiver);
+            return horizon.submitTransaction(transaction)
+            .then(function (res) {
+                console.log('Successful Trust Changed of new assets');
+                // console.log(res);
+            }).catch(function (err) {
+                console.error('Failed  Trust Changed of new assets');
+                error = err.message;
+            })
+
+        })
+        .then(function () {
+            return horizon.loadAccount(issuer.publicKey())
+        })
         .then(function (issue) {
-            console.log(newAssets);
+            // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey())
+
             let transaction = new stellarSdk.TransactionBuilder(issue)
                 .addOperation(stellarSdk.Operation.payment({
-                    destination: distributor.publicKey(),
+                    destination: receiver.publicKey(),
                     asset: newAssets,
-                    amount: '10000000'
+                    amount: amount
                 })).build();
+
             transaction.sign(issuer);
             return horizon.submitTransaction(transaction)
                 .then(function (res) {
                     console.log('Successful Payment of new assets');
+                    success = 'Successful Payment of new assets';
                 })
                 .catch(function (err) {
                     console.error('Failed  Payment of new assets');
                     error = err.message;
                     console.error(error);
-                })
+                });
         })
         .catch(function (err) {
             console.error(err);
-        })
+        });
 
-    // await horizon.loadAccount(distributor.publicKey())
-    //     .then(function (dist) {
-    //         // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey())
-            
-    //         let transaction = new stellarSdk.TransactionBuilder(dist)
-    //             .addOperation(stellarSdk.Operation.changeTrust({
-    //                 asset: newAssets,
-    //                 limit: limit
-    //             })).build();
-
-    //         transaction.sign(distributor);
-    //         return horizon.submitTransaction(transaction)
-    //         .then(function (res) {
-    //             console.log('Successful Trust Changed of new assets');
-    //             // console.log(res);
-    //         }).catch(function (err) {
-    //             console.error('Failed  Trust Changed of new assets');
-    //             error = err.message;
-    //         })
-
-    //     })
-    //     .then(function () {
-    //         return horizon.loadAccount(issuer.publicKey())
-    //     })
-    //     .then(function (issue) {
-    //         // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey())
-
-    //         let transaction = new stellarSdk.TransactionBuilder(issue)
-    //             .addOperation(stellarSdk.Operation.payment({
-    //                 destination: distributor.publicKey(),
-    //                 asset: newAssets,
-    //                 amount: amount
-    //             })).build();
-
-    //         transaction.sign(issuer);
-    //         return horizon.submitTransaction(transaction)
-    //             .then(function (res) {
-    //                 console.log('Successful Payment of new assets');
-    //             })
-    //             .catch(function (err) {
-    //                 console.error('Failed  Payment of new assets');
-    //                 error = err.message;
-    //                 console.error(error);
-    //             });
-    //     })
-        // await horizon.loadAccount(issuer.publicKey())
-        // .then(function(issue){
-        //     let transaction = new stellarSdk.TransactionBuilder(issue)
-        //         .addOperation(stellarSdk.Operation.payment({
-        //             destination: distributor.publicKey(),
-        //             asset: newAssets,
-        //             amount: amount
-        //         })).build();
-        //         transaction.sign(issuer);
-        //         return horizon.submitTransaction(transaction)
-        //         .then(function(res) {
-        //             console.log('Successful Payment of new assets');
-        //         })
-        //         .catch(function (err) {  
-        //             console.error('Failed  Payment of new assets');
-        //             error = err.message;
-        //             console.error(error);
-        //         })
-        // })
-        // .catch(function (err) {
-        //     console.error(err);
-        // })
-
-    res.render('assets', {
-        title: 'Create Assets',
-        error: error,
-        wallet_address: req.body.receiverPublicKey
-    })
+    res.render("assets", {
+      title: "Create Assets",
+      error: error,
+      wallet_address: receiver.publicKey(),
+      success: success
+    });
 });
 
 async function getBalance(wallet) {
