@@ -131,53 +131,12 @@ app.post('/ico_transfer', async function (req, res) {
                  console.log('from manage offer error')
                  console.log(err)
              })
-            //      .then(function (res) {
-            //          console.log('Successful Trust Changed of new assets');
-            //          // console.log(res);
-            //      }).catch(function (err) {
-            //          console.error('Failed  Trust Changed of new assets');
-            //          error = err.message;
-            //      })
 
         })
-        // .catch(function(err){
-        //     console.log(err)
-        //     error = err;
-        // })
-    // await horizon.loadAccount(req.body.buyerPublicKey)
-    // .then(() => {
-    //      transaction = new stellarSdk.TransactionBuilder(sourceAccount)
-    //          .addOperation(stellarSdk.Operation.payment({
-    //              destination: req.body.destinationPublicKey,
-    //              asset: stellarSdk.Asset.native(),
-    //              amount: req.body.amount
-    //          }))
-    //          .build();
-
-    //      transaction.sign(stellarSdk.Keypair.fromSecret(req.body.sourceSecret));
-
-    //      return horizon.submitTransaction(transaction);
-    //     transaction = new stellarSdk.TransactionBuilder(req.body.buyerPublicKey)
-    //         .addOperation(stellarSdk.Operation.manageOffer({
-    //             selling: stellarSdk.Asset.native(),
-    //                 buying: new stellarSdk.Asset(req.body.tokenName, req.body.issuerPublicKey),
-    //                 amount: req.body.amount,
-    //                 price: req.body.newAsset,
-    //                 offerId: 0
-    //         })).build();
-
-    //     transaction.sign((stellarSdk.Keypair.fromSecret(req.body.buyerSecret)));
-    //     return horizon.submitTransaction(transaction).then((res)=> {
-    //         console.log(res);
-
-    //         result = res;
-    //     })
-    //     .catch((err) => {
-    //         console.log(err);
-
-    //         error = err;
-    //     })
-    // })
+        .catch(function(err){
+            console.log(err)
+            error = err;
+        })
     res.render('ico_transfer', {
         title: 'ICO Transfer',
         error: error,
