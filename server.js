@@ -46,7 +46,7 @@ app.post('/wallets', async function (req, res) {
         json: true
     }, async function (error, response, body) {
         if (error || response.statusCode !== 200) {
-            
+
             res.render('create_wallet', {
                 publicKey: wallet.publicKey(),
                 secret: wallet.secret(),
@@ -97,11 +97,100 @@ app.get('/balance', async function (req, res) {
     })
 });
 
+app.get('/ico_transfer', function (req, res) {
+    res.render('ico_transfer', {
+        title: 'ICO Transfer'
+    })
+});
+
+app.post('/ico_transfer', async function (req, res) {
+    let result = null;
+    let error = null;
+    let buyer = stellarSdk.Keypair.fromSecret(req.body.buyerSecret);
+    console.log(req.body);
+
+    await horizon.loadAccount(buyer.publicKey())
+        .then(function (buy) {
+            // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey())
+
+            let transaction = new stellarSdk.TransactionBuilder(buy)
+                .addOperation(stellarSdk.Operation.manageOffer({
+                    selling: stellarSdk.Asset.native(),
+                    buying: new stellarSdk.Asset(req.body.tokenName, req.body.issuerPublicKey),
+                    amount: req.body.amount,
+                    price: req.body.newAsset,
+                    offerId: 0
+                })).build();
+
+             //transaction.sign(buyer);
+             transaction.sign(stellarSdk.Keypair.fromSecret(req.body.buyerSecret));
+             return horizon.submitTransaction(transaction).then(function(res){
+                 console.log(res);
+                 result = res;
+             }).catch(function(err){
+                 console.log('from manage offer error')
+                 console.log(err)
+             })
+            //      .then(function (res) {
+            //          console.log('Successful Trust Changed of new assets');
+            //          // console.log(res);
+            //      }).catch(function (err) {
+            //          console.error('Failed  Trust Changed of new assets');
+            //          error = err.message;
+            //      })
+
+        })
+        // .catch(function(err){
+        //     console.log(err)
+        //     error = err;
+        // })
+    // await horizon.loadAccount(req.body.buyerPublicKey)
+    // .then(() => {
+    //      transaction = new stellarSdk.TransactionBuilder(sourceAccount)
+    //          .addOperation(stellarSdk.Operation.payment({
+    //              destination: req.body.destinationPublicKey,
+    //              asset: stellarSdk.Asset.native(),
+    //              amount: req.body.amount
+    //          }))
+    //          .build();
+
+    //      transaction.sign(stellarSdk.Keypair.fromSecret(req.body.sourceSecret));
+
+    //      return horizon.submitTransaction(transaction);
+    //     transaction = new stellarSdk.TransactionBuilder(req.body.buyerPublicKey)
+    //         .addOperation(stellarSdk.Operation.manageOffer({
+    //             selling: stellarSdk.Asset.native(),
+    //                 buying: new stellarSdk.Asset(req.body.tokenName, req.body.issuerPublicKey),
+    //                 amount: req.body.amount,
+    //                 price: req.body.newAsset,
+    //                 offerId: 0
+    //         })).build();
+
+    //     transaction.sign((stellarSdk.Keypair.fromSecret(req.body.buyerSecret)));
+    //     return horizon.submitTransaction(transaction).then((res)=> {
+    //         console.log(res);
+
+    //         result = res;
+    //     })
+    //     .catch((err) => {
+    //         console.log(err);
+
+    //         error = err;
+    //     })
+    // })
+    res.render('ico_transfer', {
+        title: 'ICO Transfer',
+        error: error,
+        result: result
+    })
+});
+
 app.get('/transfer', function (req, res) {
     res.render('transfer', {
         title: 'Transfer'
     })
 });
+
 
 app.post('/transfer', async function (req, res) {
     let result = null;
@@ -128,9 +217,9 @@ app.post('/transfer', async function (req, res) {
             return horizon.submitTransaction(transaction);
         })
         .then((res) => {
-            result = res;            
+            result = res;
         })
-        .catch((err) => {            
+        .catch((err) => {
             error = err;
         })
 
@@ -138,17 +227,17 @@ app.post('/transfer', async function (req, res) {
         title: 'Transfer',
         error: error,
         result: result
-        
+
     })
 });
 
-app.get('/assets', function(req, res) {
+app.get('/assets', function (req, res) {
     res.render('assets', {
         title: 'Create Assets'
     })
 });
 
-app.post('/assets', async function(req, res) {
+app.post('/assets', async function (req, res) {
     let error = null;
     let success = true;
     let receiver = stellarSdk.Keypair.fromSecret(req.body.receiverSecret);
@@ -157,11 +246,11 @@ app.post('/assets', async function(req, res) {
     let amount = req.body.amount;
     let assetName = req.body.assetName;
     let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey());
-    
+
     await horizon.loadAccount(receiver.publicKey())
         .then(function (receive) {
             // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey())
-            
+
             let transaction = new stellarSdk.TransactionBuilder(receive)
                 .addOperation(stellarSdk.Operation.changeTrust({
                     asset: newAssets,
@@ -170,13 +259,13 @@ app.post('/assets', async function(req, res) {
 
             transaction.sign(receiver);
             return horizon.submitTransaction(transaction)
-            .then(function (res) {
-                console.log('Successful Trust Changed of new assets');
-                // console.log(res);
-            }).catch(function (err) {
-                console.error('Failed  Trust Changed of new assets');
-                error = err.message;
-            })
+                .then(function (res) {
+                    console.log('Successful Trust Changed of new assets');
+                    // console.log(res);
+                }).catch(function (err) {
+                    console.error('Failed  Trust Changed of new assets');
+                    error = err.message;
+                })
 
         })
         .then(function () {
@@ -209,10 +298,10 @@ app.post('/assets', async function(req, res) {
         });
 
     res.render("assets", {
-      title: "Create Assets",
-      error: error,
-      wallet_address: receiver.publicKey(),
-      success: success
+        title: "Create Assets",
+        error: error,
+        wallet_address: receiver.publicKey(),
+        success: success
     });
 });
 
@@ -220,7 +309,7 @@ async function getBalance(wallet) {
     return await horizon.loadAccount(wallet);
 }
 
+
 app.listen(3000, function () {
     console.log('Example app listening on port 3000');
 });
-

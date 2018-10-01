@@ -4,70 +4,69 @@ var horizon = new stellarSdk.Server('https://horizon-testnet.stellar.org');
 stellarSdk.Network.useTestNetwork();
 
 
-let newAsset = process.argv[2];
-let distSecret = process.argv[3];
-let issuerSceret = process.argv[4];
-let limit = process.argv[5];
-let amount = process.argv[6];
+setInterval(async function(){
+    let mainWalletPublicKey = 'GDMPOXVV2S6X6WBPMXXAW547X43FI76LCTCF7VH6PA4XBI7WR4TXNEF3';
+    let mainWalletSecret = 'SBEMISHQTA2H7V5H5XICGIY2RY2OYYBW6724TMUGSA64VLJNNQ5BYXKG';
 
+    let wallets = {
+        "mainWalletPublicKey": 'GDMPOXVV2S6X6WBPMXXAW547X43FI76LCTCF7VH6PA4XBI7WR4TXNEF3',
+        "mainWalletSecret": 'SBEMISHQTA2H7V5H5XICGIY2RY2OYYBW6724TMUGSA64VLJNNQ5BYXKG',
+        "wallet1PublcKey": 'GAVFXF4ENHXAVGDMPOXXXJXTBKRK2KECGRJHHOYRXFF5E4F6QGN5IXRK',
+        "wallet2PublicKey": 'GDWWAUCMH3XJTURJYOLSFRLDBVLFCJMW6VPWXBQS3FWWLTOT7VDEM4TF'
+    }
+    
+    wallet1 = await horizon.loadAccount(wallets.wallet1PublcKey);
+    if (wallet1.balances[0].balance > 30000){
+        console.log('yes reward');
+         await horizon.loadAccount(wallets.mainWalletPublicKey)
+             .then(function (buy) {
+                 // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey())
 
-var distributor = stellarSdk.Keypair.fromSecret(distSecret);
-var issuer = stellarSdk.Keypair.fromSecret(issuerSceret);
+                 let transaction = new stellarSdk.TransactionBuilder(buy)
+                     .addOperation(stellarSdk.Operation.payment({
+                        destination: req.body.destinationPublicKey,
+                        asset: stellarSdk.Asset.native(),
+                        amount: wallet1.balances[0].balance * 0.01
+                     })).build();
 
-// horizon.loadAccount(distributor.publicKey())
-//     .then(function(dist){
-//         var Asset = new stellarSdk.Asset(newAsset, issuer.publicKey());  
-//         console.log(Asset);
-              
-//         var transaction = new stellarSdk.TransactionBuilder(dist)
-//             .addOperation(stellarSdk.Operation.changeTrust({ 
-//                 asset: Asset,
-//                 limit: limit
-//             }))
-//             .build();
-        
-//         transaction.sign(distributor);
-//         return horizon.submitTransaction(transaction);
-//         // horizon.submitTransaction(transaction).then(function(result) {
-//         //     console.log('Change Trust Sucessful');
-//         //     // console.log(result);
-//         // }).catch(function(error) {
-//         //     console.log('Change trust Failed!');
-//         //     console.log(error);
-            
-//         // })
-//     })
-//     // .then(function(){
-//     //     return horizon.loadAccount(issuer.publicKey())
-//     // })
-//     // .then(function(issue) {
-//     //     var Asset = new stellarSdk.Asset(newAsset, issuer.publicKey());
-//     //     var transaction = new stellarSdk.TransactionBuilder(issue)
-//     //         .addOperation(stellarSdk.Operation.payment({
-//     //             destination: distributor.publicKey(),
-//     //             asset: Asset,
-//     //             amount: '10000000'
-//     //         }))
-//     //         .build();
+                 //transaction.sign(buyer);
+                 transaction.sign(stellarSdk.Keypair.fromSecret(wallets.mainWalletSecret));
+                 return horizon.submitTransaction(transaction).then(function (res) {
+                     console.log(res);
+                 }).catch(function (err) {
+                     console.log('payment failed')
+                     console.log(err)
+                 })
+             })
+    }
+    else{
+        console.log('no reward')
+    }
 
-//     //         transaction.sign(issuer);
-//     //         horizon.submitTransaction(transaction).then(function(results){
-//     //             console.log('Asset Distribution Sucessful');
-//     //             // console.log(results);
-//     //         }).catch(function(err){
-//     //             console.log('Asset Distribution Failer');
-//     //             // console.log(err);
-                
-                
-//     //         })
-//     // })
-//     // .then(function () {
-//     //     horizon.loadAccount(distributor.publicKey())
-//     //         .then(function (dist) {
-//     //             // console.log(dist.balances);
+    wallet2 = await horizon.loadAccount(wallets.wallet2PublcKey);
+    if (wallet2.balances[0].balance > 30000) {
+        console.log('yes reward');
+        await horizon.loadAccount(wallets.mainWalletPublicKey)
+            .then(function (buy) {
+                // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey())
 
-//     //         })
-//     // })
-//     .catch(function(error){
-//         console.error(error);
-//     })
+                let transaction = new stellarSdk.TransactionBuilder(buy)
+                    .addOperation(stellarSdk.Operation.payment({
+                        destination: req.body.destinationPublicKey,
+                        asset: stellarSdk.Asset.native(),
+                        amount: wallet2.balances[0].balance * 0.01
+                    })).build();
+
+                //transaction.sign(buyer);
+                transaction.sign(stellarSdk.Keypair.fromSecret(wallets.mainWalletSecret));
+                return horizon.submitTransaction(transaction).then(function (res) {
+                    console.log(res);
+                }).catch(function (err) {
+                    console.log('payment failed')
+                    console.log(err)
+                })
+            })
+    } else {
+        console.log('no reward')
+    }
+},60*50);

@@ -1,0 +1,47 @@
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="col col-lg-7" style="margin:1%;">
+            <h1 class="text-center">ICO Trasnfer</h1>
+            <form action="/ico_transfer" method="POST">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="buyerPublicKey" required name="buyerPublicKey" placeholder="Buyers Public Key" value="GAVFXF4ENHXAVGDMPOXXXJXTBKRK2KECGRJHHOYRXFF5E4F6QGN5IXRK" >
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="buyerSecret" required name="buyerSecret" placeholder="Buyers Secret" value="SCNSIIIW5HAVQXL7RNXCVW2OZ3DQS2KQCQCU3HRASZ7PMAHSJPZLOEIC" >
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="tokenName" required name="tokenName" placeholder="Token Name" value="rewardToken">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="issuerPublicKey" required name="issuerPublicKey" placeholder="Issuers Public Key" value = "GDMPOXVV2S6X6WBPMXXAW547X43FI76LCTCF7VH6PA4XBI7WR4TXNEF3">
+                </div>
+                <div class="form-group">
+                    <input type="number" step="0.0000001" class="form-control" id="amount" required name="amount" placeholder="Amount XLM" value="30">
+                </div>
+                <div class="form-group">
+                    <input type="number" step="0.0000001" class="form-control" id="newAsset" required name="newAsset" placeholder="ICO Price for 1 token" value="0.003">
+                </div>
+
+                <button type="submit" class="btn btn-warning btn-block">Transfer</button>
+            </form>
+
+            {{#if error}}
+            <div class="card border-danger" style = 'margin-top:1%;'>
+                <div class="card-body">
+                    <p class="card-text text-center">
+                        {{error.message}}
+                    </p>
+                </div>
+            {{/if}}
+            {{#if result}}
+            <div class="card-text json">
+                <code id="json">{{toJSON result}}</code>
+            </div>
+            {{/if}}
+        </div>
+        </div>
+    </div>
+
+    <script>
+       var json = JSON.parse(document.getElementById('json').innerText);
+    </script>

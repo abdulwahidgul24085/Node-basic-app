@@ -19,12 +19,7 @@
     </div>
 
     <script>
-        /*if(localStorage.getItem('wallet')){
-            document.getElementById('txn').value = JSON.parse(localStorage.getItem('wallet')).publicKey
-        }
-        else{
-            document.getElementById('txn').setAttribute('placeholder','Wallet Public Address')
-        }*/
-
-        var json = JSON.parse(document.getElementById('json').innerText);
+        {{#if txns}}
+            var json = JSON.parse(document.getElementById('json').innerText);
+        {{/if}}
     </script>
