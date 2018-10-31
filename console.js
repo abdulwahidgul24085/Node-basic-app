@@ -1,71 +1,44 @@
-const request = require('request');
 var stellarSdk = require('stellar-sdk');
-var horizon = new stellarSdk.Server('https://horizon-testnet.stellar.org');
-stellarSdk.Network.useTestNetwork();
 
+var NETWORK_PASSPHRASE = "Brightcoin ; October 2018";
+var HORIZON_ENDPOINT = "http://localhost:8000/";
 
-setInterval(async function(){
-    let mainWalletPublicKey = 'GDMPOXVV2S6X6WBPMXXAW547X43FI76LCTCF7VH6PA4XBI7WR4TXNEF3';
-    let mainWalletSecret = 'SBEMISHQTA2H7V5H5XICGIY2RY2OYYBW6724TMUGSA64VLJNNQ5BYXKG';
+stellarSdk.Network.use(new stellarSdk.Network(NETWORK_PASSPHRASE));
 
-    let wallets = {
-        "mainWalletPublicKey": 'GDMPOXVV2S6X6WBPMXXAW547X43FI76LCTCF7VH6PA4XBI7WR4TXNEF3',
-        "mainWalletSecret": 'SBEMISHQTA2H7V5H5XICGIY2RY2OYYBW6724TMUGSA64VLJNNQ5BYXKG',
-        "wallet1PublicKey": 'GAVFXF4ENHXAVGDMPOXXXJXTBKRK2KECGRJHHOYRXFF5E4F6QGN5IXRK',
-        "wallet2PublicKey": 'GDWWAUCMH3XJTURJYOLSFRLDBVLFCJMW6VPWXBQS3FWWLTOT7VDEM4TF'
-    }
-    
-    wallet1 = await horizon.loadAccount(wallets.wallet1PublicKey);
-    if (wallet1.balances[0].balance > 20000){
-        console.log('yes reward');
-         await horizon.loadAccount(wallets.mainWalletPublicKey)
-             .then(function (buy) {
-                 // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey())
-                 let transaction = new stellarSdk.TransactionBuilder(buy)
-                     .addOperation(stellarSdk.Operation.payment({
-                        destination: wallets.wallet1PublicKey,
-                        asset: stellarSdk.Asset.native(),
-                        amount: (wallet1.balances[0].balance * 0.01).toString()
-                     })).build();
+var opts = new stellarSdk.Config.setAllowHttp(true);
+var horizon = new stellarSdk.Server(HORIZON_ENDPOINT, opts);
 
-                 //transaction.sign(buyer);
-                 transaction.sign(stellarSdk.Keypair.fromSecret(wallets.mainWalletSecret));
-                 return horizon.submitTransaction(transaction).then(function (res) {
-                     console.log(res);
-                 }).catch(function (err) {
-                     console.log('payment failed')
-                     console.log(err)
-                 })
-             })
-    }
-    else{
-        console.log('no reward')
-    }
+var sourceAccount = stellarSdk.Keypair.fromSecret("SCJWWJ3U2QNE2GEA7G3AJQUHLYD26MSWE4DLWMILX7L4XBAZYOJ6UFKL")
 
-    wallet2 = await horizon.loadAccount(wallets.wallet2PublicKey);
-    if (wallet2.balances[0].balance > 20000) {
-        console.log('yes reward');
-        await horizon.loadAccount(wallets.mainWalletPublicKey)
-            .then(function (buy) {
-                // let newAssets = new stellarSdk.Asset(assetName, issuer.publicKey())
+function create_wallet() {
+    var pair = stellarSdk.Keypair.random();
+    console.log("publickey:", pair.publicKey());
+    console.log("secret:", pair.secret());
 
-                let transaction = new stellarSdk.TransactionBuilder(buy)
-                    .addOperation(stellarSdk.Operation.payment({
-                        destination: wallets.wallet2PublicKey,
-                        asset: stellarSdk.Asset.native(),
-                        amount: (wallet2.balances[0].balance * 0.01).toString()
-                    })).build();
+    horizon.loadAccount(sourceAccount.publicKey())
+    .then(function (account) {
+        var transaction = new stellarSdk.TransactionBuilder(account)
+                                .addOperation(stellarSdk.Operation.createAccount({
+                                    destination : pair.publicKey(),
+                                    startingBalance: "1000"
+                                }))
+                                .build();
+                                transaction.sign(sourceAccount);
+                                return horizon.submitTransaction(transaction);
+    })
+    .then(function(result) {
+        console.log('Success! Results:',result);
+    })
+    .catch(function(err) {
+        console.log(err)
+    })
+}
 
-                //transaction.sign(buyer);
-                transaction.sign(stellarSdk.Keypair.fromSecret(wallets.mainWalletSecret));
-                return horizon.submitTransaction(transaction).then(function (res) {
-                    console.log(res);
-                }).catch(function (err) {
-                    console.log('payment failed')
-                    console.log(err)
-                })
-            })
-    } else {
-        console.log('no reward')
-    }
-},60*2000);
+create_wallet()
+// horizon.loadAccount("GCEAFIFLZZR4O2R2CB72ZOFWBXSO3U2EZ56GW6GZ7BEW6VDVWNNK4RXG")
+// .then(function (account) {
+//     console.log(account);
+// })
+// .catch(function(err) {
+//     console.log(err)
+// })
