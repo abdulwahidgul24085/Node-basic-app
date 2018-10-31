@@ -1,0 +1,34 @@
+1. Install the Stellar-core
+2. Copy configure files docs/stellar-core_standalone.cfg to stellar-core
+3. Run the stellar core
+4. Install golang from https://medium.com/@patdhlk/how-to-install-go-1-9-1-on-ubuntu-16-04-ee64c073cd79
+5. Download the Horizon Build from https://github.com/stellar/horizon/releases
+6. Install Postgresql from https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04
+    if You get the following error psql: could not connect to server: No such file or directory Is the server running locally and accepting connections on Unix domain socket "/var/run/postgresql/.s.PGSQL.5432"?
+    then use the following command sudo systemctl start postgresql
+7. Export the following variable to run the Horizon server
+    1. DATABASE_URL
+    2. STELLAR_CORE_DATABASE_URL
+    3. STELLAR_CORE_URL
+--db-url postgres://postgres:pass@localhost/horizon --stelar-core-url http://localhost:8080
+8. Run the ./Horizon --ingest=true
+    If the horizon gives you an error  import session failed: failed to load header: sql: no rows in result set 
+    then you need to adda paramter in the stellar-core.cfg CATCHUP_COMPLETE=false CATCHUP_RECENT=1024
+
+Secret seed: SCO3KD7GNBTAFQ2F2UMAIJKXGBN73VIDYVNFZDL4OIMQ5TBX7OZE5I3P
+Public: GBD3PZSTNCP5IV6TLIXDHU3LGIKSJ3ZJJDFHON7VJXRBAKG4FLGFB6AB
+
+You get the private id from src/stellar-core --newdb
+Root account seed: SCJWWJ3U2QNE2GEA7G3AJQUHLYD26MSWE4DLWMILX7L4XBAZYOJ6UFKL
+
+You get this detail from src/stellar-core --convertid Root Account Seed
+Seed:
+  strKey: SCJWWJ3U2QNE2GEA7G3AJQUHLYD26MSWE4DLWMILX7L4XBAZYOJ6UFKL
+PublicKey:
+  strKey: GCEAFIFLZZR4O2R2CB72ZOFWBXSO3U2EZ56GW6GZ7BEW6VDVWNNK4RXG
+  hex: 8802a0abce63c76a3a107facb8b60de4edd344cf7c6b78d9f8496f5475b35aae
+
+
+
+
+
